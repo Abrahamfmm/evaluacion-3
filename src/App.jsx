@@ -15,7 +15,7 @@ function App() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Validar que nombre, apellido y asignatura no contengan números
+ // Validar que nombre, apellido y asignatura no contengan números
     if (["name", "lastName", "subject"].includes(name)) {
       if (/\d/.test(value)) return;
     }
@@ -77,7 +77,9 @@ function App() {
   return (
     <div className="app">
       <h2>Notas Asignatura Front-End</h2>
+
       <div id="average">Promedio general del curso: {average}</div>
+
       <div id="stats">
         <p>Total de estudiantes: {stats.total}</p>
         <p>Estudiantes que deben rendir examen: {stats.mustTakeExam}</p>
@@ -116,19 +118,27 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          {students.map((s, i) => (
-            <tr key={i}>
-              <td>{s.name}</td>
-              <td>{s.lastName}</td>
-              <td>{s.subject}</td>
-              <td>{s.grade.toFixed(1)}</td>
-              <td>{getApreciacion(s.grade)}</td>
-              <td>
-                <button onClick={() => handleEdit(i)}>Editar</button>
-                <button onClick={() => handleDelete(i)}>Eliminar</button>
+          {students.length === 0 ? (
+            <tr>
+              <td colSpan="6" style={{ textAlign: "center", padding: "1rem" }}>
+                Aún no hay alumnos agregados.
               </td>
             </tr>
-          ))}
+          ) : (
+            students.map((s, i) => (
+              <tr key={i}>
+                <td>{s.name}</td>
+                <td>{s.lastName}</td>
+                <td>{s.subject}</td>
+                <td>{s.grade.toFixed(1)}</td>
+                <td>{getApreciacion(s.grade)}</td>
+                <td>
+                  <button onClick={() => handleEdit(i)}>Editar</button>
+                  <button onClick={() => handleDelete(i)}>Eliminar</button>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>
