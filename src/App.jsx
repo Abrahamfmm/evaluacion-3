@@ -1,21 +1,28 @@
 import { useState, useEffect } from "react";
 
 function App() {
+  // Estado inicial cargado desde localStorage para guardar la lista de estudiantes
   const [students, setStudents] = useState(() => {
     const saved = localStorage.getItem("students");
     return saved ? JSON.parse(saved) : [];
   });
+
+  // Estado para los datos del formulario
   const [form, setForm] = useState({ name: "", lastName: "", subject: "", grade: "" });
+
+  // Estado para manejar si se está editando un estudiante
   const [editIndex, setEditIndex] = useState(null);
 
+  // Guardar automáticamente en localStorage cuando cambia la lista de estudiantes
   useEffect(() => {
     localStorage.setItem("students", JSON.stringify(students));
   }, [students]);
 
+  // Manejo del cambio en los campos del formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
 
- // Validar que nombre, apellido y asignatura no contengan números
+    // No permitir números en nombre, apellido y asignatura
     if (["name", "lastName", "subject"].includes(name)) {
       if (/\d/.test(value)) return;
     }
@@ -23,17 +30,21 @@ function App() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Manejo del envío del formulario
   const handleSubmit = (e) => {
     e.preventDefault();
     const { name, lastName, subject, grade } = form;
     const parsedGrade = parseFloat(grade);
 
+    // Validación de campos vacíos o nota fuera de rango
     if (!name || !lastName || !subject || isNaN(parsedGrade) || parsedGrade < 1 || parsedGrade > 7) {
       alert("Por favor completa todos los campos con datos válidos.");
       return;
     }
 
     const newStudent = { name, lastName, subject, grade: parsedGrade };
+
+    // Si se está editando, actualiza ese estudiante; si no, agrega uno nuevo
     const updatedStudents = editIndex !== null
       ? students.map((s, i) => (i === editIndex ? newStudent : s))
       : [...students, newStudent];
@@ -43,12 +54,14 @@ function App() {
     setEditIndex(null);
   };
 
+  // Cargar datos de un estudiante al formulario para editar
   const handleEdit = (index) => {
     const student = students[index];
     setForm(student);
     setEditIndex(index);
   };
 
+  // Eliminar un estudiante de la lista
   const handleDelete = (index) => {
     if (confirm("¿Estás seguro de eliminar este estudiante?")) {
       const updated = [...students];
@@ -57,10 +70,12 @@ function App() {
     }
   };
 
+  // Calcular el promedio general de las notas
   const average = students.length
     ? (students.reduce((acc, s) => acc + s.grade, 0) / students.length).toFixed(2)
     : "N/A";
 
+  // Determinar la escala de apreciación según la nota
   const getApreciacion = (grade) => {
     if (grade >= 6.5) return "destacado";
     if (grade >= 5.6) return "buen trabajo";
@@ -68,24 +83,29 @@ function App() {
     return "deficiente";
   };
 
+  // Estadísticas generales de los estudiantes
   const stats = {
     total: students.length,
     mustTakeExam: students.filter((s) => s.grade < 5).length,
     exempted: students.filter((s) => s.grade >= 5).length,
   };
 
+  // Renderización del componente principal
   return (
     <div className="app">
       <h2>Notas Asignatura Front-End</h2>
 
+      {/* Promedio general del curso */}
       <div id="average">Promedio general del curso: {average}</div>
 
+      {/* Estadísticas */}
       <div id="stats">
         <p>Total de estudiantes: {stats.total}</p>
         <p>Estudiantes que deben rendir examen: {stats.mustTakeExam}</p>
         <p>Estudiantes eximidos: {stats.exempted}</p>
       </div>
 
+      {/* Formulario para agregar o editar estudiantes */}
       <form onSubmit={handleSubmit} id="studentForm">
         <div>
           <label>Nombre:</label>
@@ -106,6 +126,7 @@ function App() {
         <button type="submit">{editIndex !== null ? "Actualizar" : "Guardar"}</button>
       </form>
 
+      {/* Tabla de estudiantes */}
       <table id="studentTable">
         <thead>
           <tr>
@@ -119,12 +140,14 @@ function App() {
         </thead>
         <tbody>
           {students.length === 0 ? (
+            // Mensaje si no hay estudiantes aún
             <tr>
               <td colSpan="6" style={{ textAlign: "center", padding: "1rem" }}>
                 Aún no hay alumnos agregados.
               </td>
             </tr>
           ) : (
+            // Renderizar la lista de estudiantes
             students.map((s, i) => (
               <tr key={i}>
                 <td>{s.name}</td>
@@ -146,4 +169,5 @@ function App() {
 }
 
 export default App;
+
 
